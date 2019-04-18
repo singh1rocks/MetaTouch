@@ -1,0 +1,178 @@
+
+//bs_fuseFaceControl.mel by Brian Salisbury
+
+//This script will create a facial rig for Mixamo facial animation in Maya 2018.
+
+//For help with the script, See the "FacialAnimationMaya2018.mp4" video.
+//You can also email brian.salisbury@utah.edu. 
+
+//Note in the script, "Facial_Blends" is the Maya blendshape node name. The ".Blink_Right", etc. is the blendshape node attribute name.
+
+//******The Blend Shape Node name will need to be renamed on the character within Maya!!!!******
+
+//If The Character has a beard or a moustache, then you will need to duplicate the code blocks that are associated with the mouth area and rename the beard and moustache Blendshape node name in Maya. Those names must correspond with the added names in the script.
+
+//The duplicated code blocks will need new expression names. (For example, expression -n "rsmile" could be expression -n "rsmile_beard")
+
+
+
+
+//Usage: 
+//Import a Mixamo Character with morphtargets or blendshapes.
+//Import FuseFaceControls.ma
+//Source bs_fuseFaceControl.mel and run the bs_fuseFaceControl command in the script editor, or Mel command line
+
+
+global proc bs_fuseFaceControl()
+
+{
+
+// Delete all expressions in scene 
+delete -all -e;
+
+// Set All the Controller attributes to ZERO and delete previous expressions
+
+setAttr "Blink_Control.translateX" 0;
+setAttr "Blink_Control.translateY" 0;
+
+setAttr "Brow_Control.translateX" 0;
+setAttr "Brow_Control.translateY" 0;
+
+setAttr "Emotion_Control.translateX" 0;
+setAttr "Emotion_Control.translateY" 0;
+
+setAttr "Speech_Control.translateX" 0;
+setAttr "Speech_Control.translateY" 0;
+
+setAttr "UpperLip_Control.translateX" 0;
+setAttr "LowerLip_Control.translateX" 0;
+
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Expressions and controls reset.........!\n");
+
+//wire up blinks**************************************
+
+expression -n "BlinkR" -s "Facial_Blends.Blink_Right = clamp (0,1, (Blink_Control.translateX+1)*(Blink_Control.translateY*-1))";
+expression -n "BlinkL" -s "Facial_Blends.Blink_Left = clamp (0,1, (-Blink_Control.translateX+1)*(Blink_Control.translateY*-1))";
+
+//Wire up blinks - this is for the Eyelashes Model
+
+expression -n "BlinkR1" -s "Eyelid_Blends.Blink_Right = clamp (0,1, (Blink_Control.translateX+1)*(Blink_Control.translateY*-1))";
+expression -n "BlinkL1" -s "Eyelid_Blends.Blink_Left = clamp (0,1, (-Blink_Control.translateX+1)*(Blink_Control.translateY*-1))";
+
+
+//wire up brows - Body Model
+
+expression -n "rbrowUp" -s "Facial_Blends.BrowsUp_Left = clamp (0,1, (Brow_Control.translateX+1)*(Brow_Control.translateY))";
+expression -n "lbrowUp" -s "Facial_Blends.BrowsUp_Right = clamp (0,1, (-Brow_Control.translateX+1)*(Brow_Control.translateY))";
+expression -n "rbrowDown" -s "Facial_Blends.BrowsDown_Left = clamp (0,1, (Brow_Control.translateX+1)*(-Brow_Control.translateY))";
+expression -n "lbrowDown" -s "Facial_Blends.BrowsDown_Right = clamp (0,1, (-Brow_Control.translateX+1)*(-Brow_Control.translateY))";
+
+//wire up pucker - 2 way box - Body Model
+
+expression -n "upperlipout" -s "Facial_Blends.UpperLipOut = clamp (0,1, (UpperLip_Control.translateX))";
+expression -n "lowerlipout" -s "Facial_Blends.LowerLipOut = clamp (0,1, (LowerLip_Control.translateX))";
+expression -n "upperlipin" -s "Facial_Blends.UpperLipIn = clamp (0,1, (-UpperLip_Control.translateX))";
+expression -n "lowerlipin" -s "Facial_Blends.LowerLipIn = clamp (0,1, (-LowerLip_Control.translateX))";
+
+
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Brows Wired..........!\n");
+
+
+//wire up smile & frowns - 4 way box - Body Model
+
+expression -n "rsmile" -s "Facial_Blends.Smile_Right = clamp (0,1, (-Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "lsmile" -s "Facial_Blends.Smile_Left = clamp (0,1, (Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "rfrown" -s "Facial_Blends.Frown_Right = clamp (0,1, (-Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+expression -n "lfrown" -s "Facial_Blends.Frown_Left = clamp (0,1, (Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Smiles and Frowns Wired..........!\n");
+
+//wire up smile & frowns - 4 way box - Moustache Model
+/*
+expression -n "rsmile" -s "Stache_Blends.Smile_Right = clamp (0,1, (-Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "lsmile" -s "Stache_Blends.Smile_Left = clamp (0,1, (Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "rfrown" -s "Stache_Blends.Frown_Right = clamp (0,1, (-Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+expression -n "lfrown" -s "Stache_Blends.Frown_Left = clamp (0,1, (Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+*/
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Smiles and Frowns Wired..........!\n");
+
+//wire up smile & frowns - 4 way box - Beard Model
+/*
+expression -n "rsmile" -s "Beard_Blends.Smile_Right = clamp (0,1, (-Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "lsmile" -s "Beard_Blends.Smile_Left = clamp (0,1, (Emotion_Control.translateX+1)*Emotion_Control.translateY)";
+expression -n "rfrown" -s "Beard_Blends.Frown_Right = clamp (0,1, (-Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+expression -n "lfrown" -s "Beard_Blends.Frown_Left = clamp (0,1, (Emotion_Control.translateX+1)*(-Emotion_Control.translateY))";
+*/
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Smiles and Frowns Wired..........!\n");
+
+
+//wire up Narrow and wide mouth
+
+
+//Mouth Narrow - Body Model
+
+expression -n "mouthNarrowR" -s "Facial_Blends.MouthNarrow_Right = clamp (-1,1, (Speech_Control.translateX))";
+expression -n "mouthNarrowL" -s "Facial_Blends.MouthNarrow_Left = clamp (-1,1, (Speech_Control.translateX))";
+
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Mouth Narrow and Wide Wired .......!\n");
+
+//Mouth Narrow - Moustache Model
+/*
+expression -n "mouthNarrowR" -s "Stache_Blends.MouthNarrow_Right = clamp (-1,1, (Speech_Control.translateX))";
+expression -n "mouthNarrowL" -s "Stache_Blends.MouthNarrow_Left = clamp (-1,1, (Speech_Control.translateX))";
+*/
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Mouth Narrow and Wide Wired .......!\n");
+
+//Mouth Narrow - Beard Model
+/*
+expression -n "mouthNarrowR" -s "Beard_Blends.MouthNarrow_Right = clamp (-1,1, (Speech_Control.translateX))";
+expression -n "mouthNarrowL" -s "Beard_Blends.MouthNarrow_Left = clamp (-1,1, (Speech_Control.translateX))";
+*/
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Mouth Narrow and Wide Wired .......!\n");
+
+//wire up Jaw! - Body Model
+
+expression -n "jaw" -s "Facial_Blends.MouthOpen = clamp (0,1, (Speech_Control.translateY*-1))";
+
+//wire up Jaw! - Moustache Model
+/*
+expression -n "jaw" -s "Stache_Blends.MouthOpen = clamp (0,1, (Speech_Control.translateY*-1))";
+*/
+
+//wire up Jaw! - Beard Model
+/*
+expression -n "jaw" -s "Beard_Blends.MouthOpen = clamp (0,1, (Speech_Control.translateY*-1))";
+*/
+
+
+// Ready to go, Have Fun!
+
+print ("\n");
+print ("-----------------------------------------------------------------------\n");
+print ("\n");
+print ("Ready to go, Have Fun!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+}
